@@ -394,6 +394,7 @@ function render(tab, btn) {
             <div class="flex justify-between items-center mb-8">
                 <h1 class="text-4xl font-black uppercase tracking-tighter text-slate-800">${t.menu[0]}</h1>
                 <div class="flex gap-3">
+                    <button onclick="refrescarDatos()" class="btn-action bg-blue-500 hover:bg-blue-600"><i class="fas fa-redo"></i> Actualizar</button>
                     <label for="import-file" class="btn-action cursor-pointer"><i class="fas fa-file-import"></i> Importar</label>
                     <input type="file" id="import-file" accept=".json" onchange="importarDatos(event)" class="hidden">
                     <button onclick="exportarDatos()" class="btn-action"><i class="fas fa-file-export"></i> ${t.export}</button>
@@ -1164,4 +1165,10 @@ function reporteEPPTrabajador(idx) {
 function resetDB() {
     localStorage.clear();
     location.reload();
+}
+
+function refrescarDatos() {
+    cargarDatos();
+    render('tablero');
+    guardarLogs(usuario_actual?.usuario, 'REFRESH', 'Datos actualizados manualmente');
 }
