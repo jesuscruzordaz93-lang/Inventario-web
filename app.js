@@ -32,7 +32,6 @@ const i18n = {
         logout: "Cerrar Sesión",
         user: "Usuario",
         password: "Contraseña",
-        jefe: "Jefe Chino",
         btn: "Guardar",
         search: "Buscar...",
         stock: "Existencias",
@@ -74,7 +73,6 @@ const i18n = {
         logout: "Logout",
         user: "Username",
         password: "Password",
-        jefe: "Chinese Boss",
         btn: "Save",
         search: "Search...",
         stock: "In Stock",
@@ -118,7 +116,6 @@ const i18n = {
         logout: "退出",
         user: "用户名",
         password: "密码",
-        jefe: "中国主管",
         btn: "保存",
         search: "搜索...",
         stock: "库存数量",
@@ -920,7 +917,6 @@ async function enviarRegistro() {
         tipo: "registro_personal",
         num_empleado: document.getElementById('reg-id').value,
         nombre_completo: document.getElementById('reg-nom').value,
-        jefe_chino: document.getElementById('reg-jefe').value,
         talla_camisola: document.getElementById('reg-tc').value,
         talla_calzado: document.getElementById('reg-tz').value
     };
