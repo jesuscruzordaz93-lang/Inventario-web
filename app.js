@@ -152,10 +152,10 @@ const i18n = {
 };
 
 const roles = {
-    almacen: { tablero: true, stock: true, personal: true, vales: true, admin: false, importar: true, reportes: true },
-    rh: { tablero: true, stock: true, personal: true, vales: true, admin: false, importar: true, reportes: true },
-    seguridad: { tablero: true, stock: false, personal: true, vales: true, admin: false, importar: false, reportes: true },
-    admin: { tablero: true, stock: true, personal: true, vales: true, admin: true, importar: true, reportes: true }
+    almacen: { tablero: true, stock: true, personal: true, vales: true, admin: false, importar: true, reportes: true, acciones: {personal: 'all', stock: 'all'} },
+    rh: { tablero: true, stock: false, personal: true, vales: false, admin: false, importar: false, reportes: false, acciones: {personal: 'add_view', stock: 'none'} },
+    seguridad: { tablero: true, stock: true, personal: false, vales: true, admin: false, importar: false, reportes: true, acciones: {personal: 'none', stock: 'all'} },
+    admin: { tablero: true, stock: true, personal: true, vales: true, admin: true, importar: true, reportes: true, acciones: {personal: 'all', stock: 'all'} }
 };
 
 // INICIALIZAR APP
@@ -437,13 +437,15 @@ function render(tab, btn) {
     }
 
     if (tab === 'stock') {
+        const rolAcciones = roles[rol_actual]?.acciones?.stock || 'none';
+        const mostrarEditar = rolAcciones === 'all';
         main.innerHTML = `
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h1 class="text-2xl font-black text-slate-800 uppercase">${t.menu[1]}</h1>
                     <input type="text" id="search-stock" onkeyup="filtrarStock()" placeholder="${t.search}" class="search-bar mt-3">
                 </div>
-                <button onclick="abrirModal('nuevoEPP')" class="btn-action"><i class="fas fa-plus"></i> ${t.add} EPP</button>
+                ${mostrarEditar ? `<button onclick="abrirModal('nuevoEPP')" class="btn-action"><i class="fas fa-plus"></i> ${t.add} EPP</button>` : ''}
             </div>
             <div class="card-ui">
                 <table class="table-ui" id="tabla-stock">
@@ -459,9 +461,9 @@ function render(tab, btn) {
                             <td class="${(parseInt(item.stock_actual) || 0) < 10 ? 'stock-low' : ''}">${item.stock_actual || 0}</td>
                             <td>${item.unidad || 'PZA'}</td>
                             <td>
-                                <button onclick="generarQR(${idx})" class="text-purple-500 mr-2" title="Generar QR"><i class="fas fa-qrcode"></i></button>
+                                ${mostrarEditar ? `<button onclick="generarQR(${idx})" class="text-purple-500 mr-2" title="Generar QR"><i class="fas fa-qrcode"></i></button>
                                 <button onclick="editarEPP(${idx})" class="text-blue-500 mr-2"><i class="fas fa-edit"></i></button>
-                                <button onclick="eliminarEPP(${idx})" class="text-red-500"><i class="fas fa-trash"></i></button>
+                                <button onclick="eliminarEPP(${idx})" class="text-red-500"><i class="fas fa-trash"></i></button>` : ''}
                             </td>
                         </tr>`).join('')}
                     </tbody>
@@ -469,21 +471,23 @@ function render(tab, btn) {
             </div>`;
     }
 
-    if (tab === 'personal') {
+if (tab === 'personal') {
+        const rolAcciones = roles[rol_actual]?.acciones?.personal || 'none';
+        const mostrarEditar = rolAcciones === 'all';
         main.innerHTML = `
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h1 class="text-2xl font-black text-slate-800 uppercase">${t.menu[2]}</h1>
                     <input type="text" id="search-per" onkeyup="filtrarPersonal()" placeholder="${t.search}" class="search-bar mt-3">
                 </div>
-                <button onclick="abrirModal('nuevoTrabajador')" class="btn-action"><i class="fas fa-user-plus"></i> ${t.newUser}</button>
+                ${rolAcciones !== 'none' ? `<button onclick="abrirModal('nuevoTrabajador')" class="btn-action"><i class="fas fa-user-plus"></i> ${t.newUser}</button>` : ''}
             </div>
             <div class="card-ui">
                 <table class="table-ui" id="tabla-per">
                     <thead><tr>
                         <th>${t.employeeId}</th><th>${t.name}</th><th>${t.department}</th><th>${t.position}</th><th>${t.tallas}</th><th>${t.actions_header}</th>
                     </tr></thead>
-<tbody>${datos_per.map((p, idx) => `
+                    <tbody>${datos_per.map((p, idx) => `
                          <tr>
                              <td>${p.num_empleado}</td>
                              <td>${p.nombre_completo}</td>
@@ -493,20 +497,20 @@ function render(tab, btn) {
                              <td>
                                  <button onclick="previsualizarTrabajador(${idx})" class="text-emerald-500 mr-2" title="Vista previa"><i class="fas fa-eye"></i></button>
                                  <button onclick="reporteEPPTrabajador(${idx})" class="text-purple-500 mr-2" title="Reporte EPP"><i class="fas fa-file-alt"></i></button>
-                                 <button onclick="editarTrabajador(${idx})" class="text-blue-500 mr-2"><i class="fas fa-edit"></i></button>
-                                 <button onclick="eliminarTrabajador(${idx})" class="text-red-500"><i class="fas fa-trash"></i></button>
+                                 ${mostrarEditar ? `<button onclick="editarTrabajador(${idx})" class="text-blue-500 mr-2"><i class="fas fa-edit"></i></button>
+                                 <button onclick="eliminarTrabajador(${idx})" class="text-red-500"><i class="fas fa-trash"></i></button>` : ''}
                              </td>
                          </tr>`).join('')}
-                    </tbody>
-                </table>
-            </div>`;
+                     </tbody>
+                 </table>
+             </div>`;
     }
 
     if (tab === 'vales') {
         main.innerHTML = `
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-black text-slate-800 uppercase">${t.menu[3]}</h1>
-                <button onclick="abrirModal('nuevoVale')" class="btn-action"><i class="fas fa-plus"></i> ${t.voucher}</button>
+                ${roles[rol_actual]?.vales ? `<button onclick="abrirModal('nuevoVale')" class="btn-action"><i class="fas fa-plus"></i> ${t.voucher}</button>` : ''}
             </div>
             <div class="card-ui">
                 <table class="table-ui">
@@ -514,16 +518,16 @@ function render(tab, btn) {
                         <th>${t.voucher}</th><th>${t.date}</th><th>${t.description}</th>
                         <th>${t.name}</th><th>${t.quantity}</th><th>${t.actions_header}</th>
                     </tr></thead>
-                    <tbody>${datos_vales.map((v, idx) => `
-                        <tr>
-                            <td>${v.id}</td>
-                            <td>${v.fecha}</td>
-                            <td>${v.articulo}</td>
-                            <td>${v.trabajador}</td>
-                            <td>${v.cantidad}</td>
-                            <td><button onclick="eliminarVale(${idx})" class="text-red-500"><i class="fas fa-trash"></i></button></td>
-                        </tr>`).join('')}
-                    </tbody>
+<tbody>${datos_vales.map((v, idx) => `
+                         <tr>
+                             <td>${v.id}</td>
+                             <td>${v.fecha}</td>
+                             <td>${v.articulo}</td>
+                             <td>${v.trabajador}</td>
+                             <td>${v.cantidad}</td>
+                             <td>${roles[rol_actual]?.vales !== false ? `<button onclick="eliminarVale(${idx})" class="text-red-500"><i class="fas fa-trash"></i></button>` : ''}</td>
+                         </tr>`).join('')}
+                     </tbody>
                 </table>
             </div>`;
     }
@@ -824,6 +828,7 @@ function abrirModal(tipo) {
 }
 
 function guardarEPP() {
+    if (roles[rol_actual]?.acciones?.stock !== 'all') return;
     datos_inv.push({
         codigo: document.getElementById('epp-cod').value,
         descripcion: document.getElementById('epp-desc').value,
@@ -838,6 +843,7 @@ function guardarEPP() {
 }
 
 function guardarTrabajador() {
+    if (roles[rol_actual]?.acciones?.personal !== 'all') return;
     datos_per.push({
         num_empleado: document.getElementById('trab-id').value,
         nombre_completo: document.getElementById('trab-nom').value,
@@ -867,6 +873,8 @@ function guardarUsuario() {
 }
 
 function guardarVale() {
+    const puedeCrearVales = roles[rol_actual]?.vales !== false;
+    if (!puedeCrearVales) return;
     datos_vales.push({
         id: 'V-' + Date.now(),
         fecha: document.getElementById('vale-fecha').value,
@@ -880,12 +888,23 @@ function guardarVale() {
     render('vales');
 }
 
+function eliminarVale(idx) {
+    const puedeEliminarVales = roles[rol_actual]?.vales !== false;
+    if (!puedeEliminarVales) return;
+    const vale = datos_vales[idx];
+    datos_vales.splice(idx, 1);
+    localStorage.setItem('tc_vales', JSON.stringify(datos_vales));
+    guardarLogs(usuario_actual?.usuario, 'DELETE_VALE', `Eliminó vale: ${vale.articulo}`);
+    render('vales');
+}
+
 function generarQR(idx) {
     window.currentQRIndex = idx;
     abrirModal('generarQR');
 }
 
 function eliminarEPP(idx) {
+    if (roles[rol_actual]?.acciones?.stock !== 'all') return;
     const item = datos_inv[idx];
     datos_inv.splice(idx, 1);
     localStorage.setItem('tc_inv', JSON.stringify(datos_inv));
@@ -894,6 +913,7 @@ function eliminarEPP(idx) {
 }
 
 function eliminarTrabajador(idx) {
+    if (roles[rol_actual]?.acciones?.personal !== 'all') return;
     const trab = datos_per[idx];
     datos_per.splice(idx, 1);
     localStorage.setItem('tc_per', JSON.stringify(datos_per));
@@ -1019,6 +1039,7 @@ function pegarDatosTabular(tipo) {
 }
 
 function guardarPersonalEditado() {
+    if (roles[rol_actual]?.acciones?.personal !== 'all') return;
     document.querySelectorAll('#tabla-personal-edit .input-edit').forEach(input => {
         const idx = parseInt(input.dataset.idx);
         const col = input.dataset.col;
@@ -1031,6 +1052,7 @@ function guardarPersonalEditado() {
 }
 
 function guardarEPPEditado() {
+    if (roles[rol_actual]?.acciones?.stock !== 'all') return;
     document.querySelectorAll('#tabla-epp-edit .input-edit').forEach(input => {
         const idx = parseInt(input.dataset.idx);
         const col = input.dataset.col;
@@ -1043,16 +1065,19 @@ function guardarEPPEditado() {
 }
 
 function agregarFilaPersonal() {
+    if (roles[rol_actual]?.acciones?.personal !== 'all') return;
     datos_per.push({num_empleado:'', nombre_completo:'', departamento:'', puesto:'', talla_camisola:'', talla_calzado:''});
     render('importar');
 }
 
 function agregarFilaEPP() {
+    if (roles[rol_actual]?.acciones?.stock !== 'all') return;
     datos_inv.push({codigo:'', descripcion:'', categoria:'', stock_actual:0, unidad:'PZA'});
     render('importar');
 }
 
 function limpiarTodoEPP() {
+    if (roles[rol_actual]?.acciones?.stock !== 'all') return;
     if (confirm("¿Estás seguro de que deseas eliminar TODO el inventario EPP? Esta acción no se puede deshacer.")) {
         datos_inv = [];
         localStorage.setItem('tc_inv', JSON.stringify(datos_inv));
@@ -1063,6 +1088,7 @@ function limpiarTodoEPP() {
 }
 
 function limpiarTodoPersonal() {
+    if (roles[rol_actual]?.acciones?.personal !== 'all') return;
     if (confirm("¿Estás seguro de que deseas eliminar TODOS los registros de personal? Esta acción no se puede deshacer.")) {
         datos_per = [];
         localStorage.setItem('tc_per', JSON.stringify(datos_per));
