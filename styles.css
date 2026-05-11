@@ -1,0 +1,104 @@
+.nav-link {
+    width: 100%; display: flex; align-items: center; padding: 14px 20px;
+    border-radius: 16px; font-size: 11px; font-weight: 800; color: #64748B;
+    transition: all 0.3s; margin-bottom: 4px; text-transform: uppercase;
+}
+.nav-link:hover { background: #1E293B; color: #F1F5F9; }
+.nav-link.active { background: #10B981; color: white; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4); }
+.nav-link.disabled { opacity: 0.3; pointer-events: none; }
+
+.card-stat {
+    background: white; border-radius: 30px; padding: 25px;
+    border: 1px solid #F1F5F9; transition: transform 0.3s;
+}
+.card-stat:hover { transform: translateY(-5px); }
+
+.card-ui { background: white; border-radius: 40px; padding: 35px; border: 1px solid #F1F5F9; }
+
+.input-ui {
+    width: 100%; background: #F8FAFC; border: 2px solid #F1F5F9; padding: 18px;
+    border-radius: 20px; font-size: 13px; font-weight: 700; outline: none; transition: 0.3s;
+}
+.input-edit {
+    width: 100%; background: transparent; border: 1px solid transparent; padding: 4px;
+    font-size: 12px; outline: none; transition: border 0.3s;
+}
+.input-edit:focus { border: 1px dashed #10B981; background: #F8FAFC; border-radius: 4px; }
+
+.stock-low { color: #ef4444; font-weight: 900; animation: pulse 2s infinite; }
+@keyframes pulse { 50% { opacity: 0.5; } }
+
+.btn-action {
+    background: #10B981; color: white; padding: 10px 20px;
+    border-radius: 12px; font-size: 11px; font-weight: 800;
+    transition: all 0.3s; border: none; cursor: pointer;
+}
+.btn-action:hover { background: #059669; transform: scale(1.05); }
+.btn-action.bg-red-500:hover { background: #DC2626; }
+
+.role-badge {
+    display: inline-block; padding: 4px 12px; border-radius: 20px;
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+}
+.role-almacen { background: #DBEAFE; color: #1E40AF; }
+.role-rh { background: #FEF3C7; color: #92400E; }
+.role-seguridad { background: #FEE2E2; color: #991B1B; }
+.role-admin { background: #EDE9FE; color: #5B21B6; }
+
+.avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: #10B981; color: white; display: flex;
+    align-items: center; justify-content: center; font-weight: 800;
+}
+
+.table-ui {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.table-ui th {
+    padding: 15px 10px; text-align: left; font-weight: 800;
+    color: #475569; text-transform: uppercase; font-size: 10px;
+    letter-spacing: 0.5px; border-bottom: 2px solid #F1F5F9;
+}
+.table-ui td {
+    padding: 15px 10px; border-bottom: 1px solid #F1F5F9; color: #334155;
+}
+.table-ui tr:hover { background: #F8FAFC; }
+
+.search-bar {
+    background: #F8FAFC; border: 2px solid #F1F5F9; padding: 12px 20px;
+    border-radius: 16px; font-size: 13px; font-weight: 600; width: 300px;
+    outline: none; transition: 0.3s;
+}
+.search-bar:focus { border-color: #10B981; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+
+.theme-selector {
+    position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+    background: white; border-radius: 50px; padding: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.theme-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
+    margin: 0 4px; transition: transform 0.3s;
+}
+.theme-btn:hover { transform: scale(1.2); }
+.theme-default { background: linear-gradient(135deg, #10B981, #059669); }
+.theme-blue { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
+.theme-dark { background: linear-gradient(135deg, #1E293B, #0F172A); }
+
+[data-theme="blue"] .btn-action { background: #3B82F6; }
+[data-theme="blue"] .btn-action:hover { background: #2563EB; }
+[data-theme="blue"] .nav-link.active { background: #3B82F6; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4); }
+[data-theme="blue"] .input-ui:focus { border-color: #3B82F6; }
+
+[data-theme="dark"] .card-ui, [data-theme="dark"] .card-stat, [data-theme="dark"] header { 
+    background: #1E293B; color: #F1F5F9; border-color: #334155; 
+}
+[data-theme="dark"] .table-ui td, [data-theme="dark"] .table-ui th { color: #E2E8F0; border-color: #334155; }
+[data-theme="dark"] .table-ui tr:hover { background: #334155; }
+[data-theme="dark"] .btn-action { background: #3B82F6; }
+[data-theme="dark"] .btn-action:hover { background: #2563EB; }
+[data-theme="dark"] .nav-link.active { background: #3B82F6; }

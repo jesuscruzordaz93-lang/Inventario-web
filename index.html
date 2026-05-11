@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Ceramics PPE - Inventario de Seguridad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body class="bg-[#F8FAFC] h-screen overflow-hidden text-slate-900">
+
+    <div id="login-screen" class="fixed inset-0 z-[500] bg-[#0F172A] flex items-center justify-center p-6">
+        <div class="bg-white p-10 rounded-[40px] shadow-2xl w-full max-w-md text-center">
+            <div class="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-3xl mx-auto mb-6 flex items-center justify-center text-white text-3xl shadow-2xl">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2 class="text-2xl font-black text-slate-800 uppercase mb-2">Time Ceramics</h2>
+            <p class="text-[11px] text-slate-500 font-bold uppercase mb-8">Inventario EPP v3.0 - Admin</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <input type="text" id="user-input" placeholder="Usuario / Username" class="w-full px-6 py-4 bg-slate-50 rounded-2xl text-center font-bold outline-none focus:ring-2 focus:ring-emerald-500" autocomplete="off">
+                </div>
+                <div>
+                    <input type="password" id="pass-input" placeholder="Contraseña / Password" class="w-full px-6 py-4 bg-slate-50 rounded-2xl text-center font-bold outline-none focus:ring-2 focus:ring-emerald-500" autocomplete="off">
+                </div>
+                <button onclick="ejecutarLogin()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase hover:bg-emerald-500 transition shadow-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-sign-in-alt"></i> Entrar / 登录
+                </button>
+            </div>
+            
+
+        </div>
+    </div>
+
+    <div id="app-shell" style="display: none;" class="h-screen flex w-full">
+        <aside class="w-72 bg-[#0F172A] text-slate-400 flex flex-col p-6 shadow-2xl">
+            <div class="flex items-center gap-3 mb-10 px-2">
+                <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                    <i class="fas fa-cube text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-white font-black text-sm tracking-tighter uppercase">Time Ceramics</h1>
+                    <p class="text-[10px] text-slate-500" id="rol-display"></p>
+                </div>
+            </div>
+            <nav id="menu-links" class="flex-1 space-y-1">
+            </nav>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="bg-white h-20 border-b flex justify-between items-center px-10 theme-header">
+                <div id="header-info">
+                    <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Sistema de Gestión EPP - Registro de Actividad</h2>
+                </div>
+                <div class="flex bg-slate-100 p-1 rounded-xl text-[10px] font-black">
+                    <button onclick="cambiarIdioma('es')" class="lang-btn px-4 py-2 rounded-lg transition" id="btn-es">ES</button>
+                    <button onclick="cambiarIdioma('en')" class="lang-btn px-4 py-2 rounded-lg transition" id="btn-en">EN</button>
+                    <button onclick="cambiarIdioma('zh')" class="lang-btn px-4 py-2 rounded-lg transition" id="btn-zh">ZH</button>
+                </div>
+            </header>
+            <div id="content" class="flex-1 overflow-y-auto p-10"></div>
+        </main>
+    </div>
+
+    <div id="overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] hidden" onclick="cerrarModal()"></div>
+    <div id="modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[92%] max-w-md p-8 rounded-[35px] shadow-2xl z-[201] hidden max-h-[80vh] overflow-y-auto"></div>
+
+    <div class="theme-selector">
+        <button class="theme-btn theme-default" onclick="cambiarTema('default')" title="Tema Verde"></button>
+        <button class="theme-btn theme-blue" onclick="cambiarTema('blue')" title="Tema Azul"></button>
+        <button class="theme-btn theme-dark" onclick="cambiarTema('dark')" title="Tema Oscuro"></button>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('tc_theme') || 'default';
+            document.body.setAttribute('data-theme', savedTheme);
+        });
+    </script>
+</body>
+</html>
