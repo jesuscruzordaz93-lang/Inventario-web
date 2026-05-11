@@ -510,7 +510,10 @@ if (tab === 'vales') {
         main.innerHTML = `
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-black text-slate-800 uppercase">${t.menu[3]}</h1>
-                ${roles[rol_actual]?.vales ? `<button onclick="abrirModal('nuevoVale')" class="btn-action"><i class="fas fa-plus"></i> ${t.voucher}</button>` : ''}
+                <div class="flex gap-2">
+                    ${roles[rol_actual]?.vales ? `<button onclick="abrirModal('nuevoVale')" class="btn-action"><i class="fas fa-plus"></i> ${t.voucher}</button>` : ''}
+                    <button onclick="abrirEscanerQR()" class="btn-action bg-purple-500 hover:bg-purple-600"><i class="fas fa-qrcode"></i> Escanear QR</button>
+                </div>
             </div>
             <div class="card-ui">
                 <table class="table-ui">
@@ -966,12 +969,16 @@ function guardarUsuario() {
 function guardarVale() {
     const puedeCrearVales = roles[rol_actual]?.vales !== false;
     if (!puedeCrearVales) return;
+    const qrUnico = 'QR-' + Math.random().toString(36).substring(2, 10).toUpperCase();
     datos_vales.push({
         id: 'V-' + Date.now(),
         fecha: document.getElementById('vale-fecha').value,
         articulo: document.getElementById('vale-art').value,
         trabajador: document.getElementById('vale-trab').value,
-        cantidad: document.getElementById('vale-cant').value
+        cantidad: document.getElementById('vale-cant').value,
+        qr_unico: qrUnico,
+        escaneado: false,
+        fecha_entrega: null
     });
     localStorage.setItem('tc_vales', JSON.stringify(datos_vales));
     guardarLogs(usuario_actual?.usuario, 'ADD_VALE', `Registró vale: ${document.getElementById('vale-art').value}`);
@@ -1043,6 +1050,7 @@ async function enviarRegistro() {
 function imprimirVale(idx) {
     const v = datos_vales[idx];
     const trabajador = datos_per.find(p => p.nombre_completo === v.trabajador) || {};
+    const qr = v.qr_unico || 'QR-' + Math.random().toString(36).substring(2, 10).toUpperCase();
     const contenido = `
         <html>
         <head>
@@ -1053,6 +1061,7 @@ function imprimirVale(idx) {
                 .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
                 .row { display: flex; justify-content: space-between; margin: 10px 0; }
                 .label { font-weight: bold; }
+                .qr-code { text-align: center; margin: 10px 0; font-family: monospace; font-size: 18px; letter-spacing: 3px; background: #f0f0f0; padding: 10px; }
             </style>
         </head>
         <body>
@@ -1070,6 +1079,7 @@ function imprimirVale(idx) {
                 <div class="row"><span class="label">Cantidad:</span> <span>${v.cantidad}</span></div>
                 <div class="row"><span class="label">Talla Camisola:</span> <span>${trabajador.talla_camisola || '-'}</span></div>
                 <div class="row"><span class="label">Talla Calzado:</span> <span>${trabajador.talla_calzado || '-'}</span></div>
+                <div class="qr-code">ESCANEAR: ${qr}</div>
                 <div style="margin-top: 30px; display: flex; justify-content: space-around;">
                     <div>Firma Trabajador: ________________</div>
                     <div>Firma Responsable: ________________</div>
@@ -1082,6 +1092,32 @@ function imprimirVale(idx) {
     const ventana = window.open('', '_blank');
     ventana.document.write(contenido);
     ventana.document.close();
+}
+
+function escanearVale(qr) {
+    const vale = datos_vales.find(v => v.qr_unico === qr);
+    if (!vale) {
+        alert('QR no encontrado en el sistema');
+        return;
+    }
+    if (vale.escaneado) {
+        const msg = `¡ALERTA! Este vale YA fue escaneado el ${new Date(vale.fecha_entrega).toLocaleString()}\nTrabajador: ${vale.trabajador}\nArtículo: ${vale.articulo}`;
+        alert(msg);
+        return;
+    }
+    if (confirm(`Confirmar entrega de EPP\nTrabajador: ${vale.trabajador}\nArtículo: ${vale.articulo}\nCantidad: ${vale.cantidad}`)) {
+        vale.escaneado = true;
+        vale.fecha_entrega = new Date().toISOString();
+        localStorage.setItem('tc_vales', JSON.stringify(datos_vales));
+        guardarLogs(usuario_actual?.usuario, 'SCAN_VALE', `Entregado vale ${vale.id} a ${vale.trabajador}`);
+        alert('¡Vale registrado como ENTREGADO!');
+        render('vales');
+    }
+}
+
+function abrirEscanerQR() {
+    const qr = prompt('Ingrese el código QR del vale (ej: QR-ABCD1234):');
+    if (qr) escanearVale(qr.trim());
 }
 
 function exportarDatos() {
