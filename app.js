@@ -153,7 +153,7 @@ const i18n = {
 
 const roles = {
     almacen: { tablero: true, stock: true, personal: true, vales: true, admin: false, importar: true, reportes: true, acciones: {personal: 'all', stock: 'all'} },
-    rh: { tablero: true, stock: false, personal: true, vales: false, admin: false, importar: false, reportes: false, acciones: {personal: 'add_view', stock: 'none'} },
+    rh: { tablero: true, stock: false, personal: true, vales: true, admin: false, importar: false, reportes: false, acciones: {personal: 'add_view', stock: 'none'} },
     seguridad: { tablero: true, stock: true, personal: false, vales: true, admin: false, importar: false, reportes: true, acciones: {personal: 'none', stock: 'all'} },
     admin: { tablero: true, stock: true, personal: true, vales: true, admin: true, importar: true, reportes: true, acciones: {personal: 'all', stock: 'all'} }
 };
