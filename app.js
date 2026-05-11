@@ -764,73 +764,12 @@ if (tab === 'vales') {
                         <canvas id="graficoCategoria"></canvas>
                     </div>
                 </div>
-            </div>
+            </div>`;
+        
+        setTimeout(renderizarGraficos, 200);
+    }
 
-            <script>
-            setTimeout(() => {
-                const valesPorPersonal = {};
-                datos_vales.forEach(v => {
-                    valesPorPersonal[v.trabajador] = (valesPorPersonal[v.trabajador] || 0) + parseInt(v.cantidad || 0);
-                });
-                
-                if(Object.keys(valesPorPersonal).length > 0) {
-                    new Chart(document.getElementById('graficoPersonal'), {
-                        type: 'bar',
-                        data: {
-                            labels: Object.keys(valesPorPersonal).slice(0, 10),
-                            datasets: [{
-                                label: 'Piezas Entregadas',
-                                data: Object.values(valesPorPersonal).slice(0, 10),
-                                backgroundColor: '#10B981'
-                            }]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false }
-                    });
-                }
-                
-                const valesPorMes = {};
-                datos_vales.forEach(v => {
-                    const mes = v.fecha.substring(0, 7);
-                    valesPorMes[mes] = (valesPorMes[mes] || 0) + parseInt(v.cantidad || 0);
-                });
-                
-                if(Object.keys(valesPorMes).length > 0) {
-                    new Chart(document.getElementById('graficoMes'), {
-                        type: 'line',
-                        data: {
-                            labels: Object.keys(valesPorMes),
-                            datasets: [{
-                                label: 'EPP Entregado',
-                                data: Object.values(valesPorMes),
-                                borderColor: '#3B82F6',
-                                fill: false
-                            }]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false }
-                    });
-                }
-                
-                const stockPorCategoria = {};
-                datos_inv.forEach(i => {
-                    const cat = i.categoria || 'General';
-                    stockPorCategoria[cat] = (stockPorCategoria[cat] || 0) + (parseInt(i.stock_actual) || 0);
-                });
-                
-                if(Object.keys(stockPorCategoria).length > 0) {
-                    new Chart(document.getElementById('graficoCategoria'), {
-                        type: 'doughnut',
-                        data: {
-                            labels: Object.keys(stockPorCategoria),
-                            datasets: [{
-                                data: Object.values(stockPorCategoria),
-                                backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6']
-                            }]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false }
-                    });
-                }
-            }, 100);
-            </script>`;
+    function renderizarGraficos() {
     }
 }
 
@@ -912,6 +851,70 @@ function abrirModal(tipo) {
                 });
             }, 100);
         }
+    }
+}
+
+function renderizarGraficos() {
+    const valesPorPersonal = {};
+    datos_vales.forEach(v => {
+        valesPorPersonal[v.trabajador] = (valesPorPersonal[v.trabajador] || 0) + parseInt(v.cantidad || 0);
+    });
+    
+    if(Object.keys(valesPorPersonal).length > 0) {
+        new Chart(document.getElementById('graficoPersonal'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(valesPorPersonal).slice(0, 10),
+                datasets: [{
+                    label: 'Piezas Entregadas',
+                    data: Object.values(valesPorPersonal).slice(0, 10),
+                    backgroundColor: '#10B981'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+    
+    const valesPorMes = {};
+    datos_vales.forEach(v => {
+        const mes = v.fecha.substring(0, 7);
+        valesPorMes[mes] = (valesPorMes[mes] || 0) + parseInt(v.cantidad || 0);
+    });
+    
+    if(Object.keys(valesPorMes).length > 0) {
+        new Chart(document.getElementById('graficoMes'), {
+            type: 'line',
+            data: {
+                labels: Object.keys(valesPorMes),
+                datasets: [{
+                    label: 'EPP Entregado',
+                    data: Object.values(valesPorMes),
+                    borderColor: '#3B82F6',
+                    fill: false
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+    
+    const stockPorCategoria = {};
+    datos_inv.forEach(i => {
+        const cat = i.categoria || 'General';
+        stockPorCategoria[cat] = (stockPorCategoria[cat] || 0) + (parseInt(i.stock_actual) || 0);
+    });
+    
+    if(Object.keys(stockPorCategoria).length > 0) {
+        new Chart(document.getElementById('graficoCategoria'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(stockPorCategoria),
+                datasets: [{
+                    data: Object.values(stockPorCategoria),
+                    backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
     }
 }
 
