@@ -769,10 +769,80 @@ if (tab === 'vales') {
                 </div>
             </div>`;
         
-        setTimeout(renderizarGraficos, 200);
+        setTimeout(renderGraficos, 200);
     }
 
-    function renderizarGraficos() {
+function guardarVale() {
+    const puedeCrearVales = roles[rol_actual]?.vales !== false;
+    if (!puedeCrearVales) return;
+    
+    const articulosVale = window.valeArticulos || [];
+    if (articulosVale.length === 0) {
+        alert('Agrega al menos un artículo al vale');
+        return;
+    }
+    
+    const trabajador = document.getElementById('vale-trab').value;
+    const fecha = document.getElementById('vale-fecha').value;
+    
+    articulosVale.forEach(item => {
+        const qrUnico = 'QR-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+        datos_vales.push({
+            id: 'V-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+            fecha: fecha,
+            articulo: item.articulo,
+            trabajador: trabajador,
+            cantidad: item.cantidad,
+            qr_unico: qrUnico,
+            escaneado: false,
+            fecha_entrega: null
+        });
+    });
+    
+    localStorage.setItem('tc_vales', JSON.stringify(datos_vales));
+    guardarLogs(usuario_actual?.usuario, 'ADD_VALE', `Registró ${articulosVale.length} artículos en vale`);
+    cerrarModal();
+    render('vales');
+}
+
+function agregarArticuloVale() {
+    const select = document.getElementById('vale-art-select');
+    const cantidad = document.getElementById('vale-cant-item').value;
+    const valor = select.value;
+    
+    if (!valor) {
+        alert('Selecciona un artículo');
+        return;
+    }
+    
+    const [articulo, codigo] = valor.split('|');
+    window.valeArticulos = window.valeArticulos || [];
+    window.valeArticulos.push({ articulo, codigo, cantidad });
+    
+    const lista = document.getElementById('vale-articulos-list');
+    lista.innerHTML = window.valeArticulos.map((item, idx) => `
+        <div class="flex justify-between items-center bg-slate-50 p-2 rounded">
+            <span>${item.articulo} (${item.cantidad})</span>
+            <button type="button" onclick="eliminarArticuloVale(${idx})" class="text-red-500"><i class="fas fa-times"></i></button>
+        </div>
+    `).join('');
+    
+    select.value = '';
+    document.getElementById('vale-cant-item').value = '1';
+}
+
+function eliminarArticuloVale(idx) {
+    window.valeArticulos.splice(idx, 1);
+    const lista = document.getElementById('vale-articulos-list');
+    lista.innerHTML = window.valeArticulos.map((item, idx) => `
+        <div class="flex justify-between items-center bg-slate-50 p-2 rounded">
+            <span>${item.articulo} (${item.cantidad})</span>
+            <button type="button" onclick="eliminarArticuloVale(${idx})" class="text-red-500"><i class="fas fa-times"></i></button>
+        </div>
+    `).join('');
+}
+
+function renderGraficos() {
     }
 }
 
@@ -831,15 +901,22 @@ function abrirModal(tipo) {
             </form>`;
     } else if (tipo === 'nuevoVale') {
         const trabajadores = datos_per.map(p => `<option value="${p.nombre_completo}">${p.nombre_completo}</option>`).join('');
-        const articulos = datos_inv.map(i => `<option value="${i.descripcion}">${i.descripcion}</option>`).join('');
+        const articulos = datos_inv.map(i => `<option value="${i.descripcion}|${i.codigo}">${i.descripcion}</option>`).join('');
         modal.innerHTML = `<h2 class="text-xl font-black mb-4">Nuevo Vale</h2>
             <form id="form-vale" class="space-y-3">
                 <select id="vale-trab" class="input-ui"><option value="">Seleccionar trabajador</option>${trabajadores}</select>
-                <select id="vale-art" class="input-ui"><option value="">Seleccionar artículo</option>${articulos}</select>
-                <input type="number" id="vale-cant" placeholder="Cantidad" class="input-ui">
+                <div class="flex gap-2">
+                    <select id="vale-art-select" class="input-ui flex-1"><option value="">Seleccionar artículo</option>${articulos}</select>
+                    <input type="number" id="vale-cant-item" placeholder="Cant" class="input-ui w-20" value="1" min="1">
+                    <button type="button" onclick="agregarArticuloVale()" class="btn-action px-3"><i class="fas fa-plus"></i></button>
+                </div>
+                <div id="vale-articulos-list" class="space-y-2 max-h-32 overflow-y-auto"></div>
                 <input type="date" id="vale-fecha" class="input-ui" value="${new Date().toISOString().split('T')[0]}">
                 <button type="button" onclick="guardarVale()" class="btn-action w-full">Guardar</button>
-            </form>`;
+            </form>
+            <script>
+                window.valeArticulos = [];
+            </script>`;
     } else if (tipo === 'generarQR') {
         const item = datos_inv[window.currentQRIndex] || datos_inv[0];
         if (item) {
