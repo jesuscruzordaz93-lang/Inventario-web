@@ -506,7 +506,7 @@ if (tab === 'personal') {
              </div>`;
     }
 
-    if (tab === 'vales') {
+if (tab === 'vales') {
         main.innerHTML = `
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-black text-slate-800 uppercase">${t.menu[3]}</h1>
@@ -518,16 +518,16 @@ if (tab === 'personal') {
                         <th>${t.voucher}</th><th>${t.date}</th><th>${t.description}</th>
                         <th>${t.name}</th><th>${t.quantity}</th><th>${t.actions_header}</th>
                     </tr></thead>
-<tbody>${datos_vales.map((v, idx) => `
-                         <tr>
-                             <td>${v.id}</td>
-                             <td>${v.fecha}</td>
-                             <td>${v.articulo}</td>
-                             <td>${v.trabajador}</td>
-                             <td>${v.cantidad}</td>
-                             <td>${roles[rol_actual]?.vales !== false ? `<button onclick="eliminarVale(${idx})" class="text-red-500"><i class="fas fa-trash"></i></button>` : ''}</td>
-                         </tr>`).join('')}
-                     </tbody>
+                    <tbody>${datos_vales.map((v, idx) => `
+                        <tr>
+                            <td>${v.id}</td>
+                            <td>${v.fecha}</td>
+                            <td>${v.articulo}</td>
+                            <td>${v.trabajador}</td>
+                            <td>${v.cantidad}</td>
+                            <td>${roles[rol_actual]?.vales !== false ? `<button onclick="imprimirVale(${idx})" class="text-blue-500 mr-2" title="Imprimir Vale"><i class="fas fa-print"></i></button><button onclick="eliminarVale(${idx})" class="text-red-500"><i class="fas fa-trash"></i></button>` : ''}
+                        </tr>`).join('')}
+                    </tbody>
                 </table>
             </div>`;
     }
@@ -742,7 +742,95 @@ if (tab === 'personal') {
                         <p class="text-xs">Ediciones</p>
                     </div>
                 </div>
-            </div>`;
+            </div>
+
+            <div class="card-ui mb-6">
+                <h3 class="font-black mb-4"><i class="fas fa-chart-pie"></i> EPP por Personal</h3>
+                <div class="h-64">
+                    <canvas id="graficoPersonal"></canvas>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="card-ui">
+                    <h3 class="font-black mb-4"><i class="fas fa-chart-line"></i> Vales por Mes</h3>
+                    <div class="h-48">
+                        <canvas id="graficoMes"></canvas>
+                    </div>
+                </div>
+                <div class="card-ui">
+                    <h3 class="font-black mb-4"><i class="fas fa-chart-bar"></i> Stock por Categoría</h3>
+                    <div class="h-48">
+                        <canvas id="graficoCategoria"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            setTimeout(() => {
+                const valesPorPersonal = {};
+                datos_vales.forEach(v => {
+                    valesPorPersonal[v.trabajador] = (valesPorPersonal[v.trabajador] || 0) + parseInt(v.cantidad || 0);
+                });
+                
+                if(Object.keys(valesPorPersonal).length > 0) {
+                    new Chart(document.getElementById('graficoPersonal'), {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(valesPorPersonal).slice(0, 10),
+                            datasets: [{
+                                label: 'Piezas Entregadas',
+                                data: Object.values(valesPorPersonal).slice(0, 10),
+                                backgroundColor: '#10B981'
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false }
+                    });
+                }
+                
+                const valesPorMes = {};
+                datos_vales.forEach(v => {
+                    const mes = v.fecha.substring(0, 7);
+                    valesPorMes[mes] = (valesPorMes[mes] || 0) + parseInt(v.cantidad || 0);
+                });
+                
+                if(Object.keys(valesPorMes).length > 0) {
+                    new Chart(document.getElementById('graficoMes'), {
+                        type: 'line',
+                        data: {
+                            labels: Object.keys(valesPorMes),
+                            datasets: [{
+                                label: 'EPP Entregado',
+                                data: Object.values(valesPorMes),
+                                borderColor: '#3B82F6',
+                                fill: false
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false }
+                    });
+                }
+                
+                const stockPorCategoria = {};
+                datos_inv.forEach(i => {
+                    const cat = i.categoria || 'General';
+                    stockPorCategoria[cat] = (stockPorCategoria[cat] || 0) + (parseInt(i.stock_actual) || 0);
+                });
+                
+                if(Object.keys(stockPorCategoria).length > 0) {
+                    new Chart(document.getElementById('graficoCategoria'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(stockPorCategoria),
+                            datasets: [{
+                                data: Object.values(stockPorCategoria),
+                                backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6']
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false }
+                    });
+                }
+            }, 100);
+            </script>`;
     }
 }
 
@@ -947,6 +1035,50 @@ async function enviarRegistro() {
         alert("Guardado / 已保存");
         sincronizar();
     } catch (e) { alert("Error"); }
+}
+
+function imprimirVale(idx) {
+    const v = datos_vales[idx];
+    const trabajador = datos_per.find(p => p.nombre_completo === v.trabajador) || {};
+    const contenido = `
+        <html>
+        <head>
+            <title>Imprimir Vale ${v.id}</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                .vale { border: 2px solid #333; padding: 20px; margin-bottom: 20px; page-break-after: always; }
+                .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
+                .row { display: flex; justify-content: space-between; margin: 10px 0; }
+                .label { font-weight: bold; }
+            </style>
+        </head>
+        <body>
+            ${[1,2,3].map(() => `
+            <div class="vale">
+                <div class="header">
+                    <h2>VALE DE ENTREGA EPP</h2>
+                    <h3>Time Ceramics</h3>
+                </div>
+                <div class="row"><span class="label">ID Vale:</span> <span>${v.id}</span></div>
+                <div class="row"><span class="label">Fecha:</span> <span>${v.fecha}</span></div>
+                <div class="row"><span class="label">Trabajador:</span> <span>${v.trabajador}</span></div>
+                <div class="row"><span class="label">Departamento:</span> <span>${trabajador.departamento || 'N/A'}</span></div>
+                <div class="row"><span class="label">Artículo:</span> <span>${v.articulo}</span></div>
+                <div class="row"><span class="label">Cantidad:</span> <span>${v.cantidad}</span></div>
+                <div class="row"><span class="label">Talla Camisola:</span> <span>${trabajador.talla_camisola || '-'}</span></div>
+                <div class="row"><span class="label">Talla Calzado:</span> <span>${trabajador.talla_calzado || '-'}</span></div>
+                <div style="margin-top: 30px; display: flex; justify-content: space-around;">
+                    <div>Firma Trabajador: ________________</div>
+                    <div>Firma Responsable: ________________</div>
+                </div>
+            </div>`).join('')}
+            <script>window.onload = function() { window.print(); }</script>
+        </body>
+        </html>
+    `;
+    const ventana = window.open('', '_blank');
+    ventana.document.write(contenido);
+    ventana.document.close();
 }
 
 function exportarDatos() {
