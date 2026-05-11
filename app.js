@@ -308,7 +308,7 @@ function procesarCSV(csvText, tipo) {
     return mappedRow;
   }).filter(row => {
     if (tipo === 'epp') return row.descripcion || row.codigo;
-    if (tipo === 'personal') return row.nombre_completo;
+    if (tipo === 'personal') return row.nombre_completo && !row.nombre_completo.includes('image.png') && !row.nombre_completo.includes('.png');
     return true;
   });
 
